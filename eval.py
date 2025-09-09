@@ -32,15 +32,6 @@ class Gemma3Classifier(nn.Module):
         return logits
 
 def load_model(model_path):
-    """Load the trained model from checkpoint"""
-    # Load environment variables
-    load_dotenv()
-    HUGGINGFACE_TOKEN = os.getenv("HUGGINGFACE_TOKEN")
-    MODEL = "google/gemma-3-4b-pt"
-    
-    # Login to Hugging Face
-    login(token=HUGGINGFACE_TOKEN)
-    
     # Load base model with same configuration as training
     baseModel = Gemma3Model.from_pretrained(
         MODEL, 
@@ -62,20 +53,9 @@ def load_model(model_path):
     weights = torch.load(model_path, map_location='cpu')
     model.load_state_dict(weights)
     
-    model.eval()
     return model
 
 def load_data():
-    """Load and preprocess the test dataset"""
-    # Load environment variables
-    load_dotenv()
-    HUGGINGFACE_TOKEN = os.getenv("HUGGINGFACE_TOKEN")
-    MODEL = "google/gemma-3-4b-pt"
-    SEED = 69
-    
-    # Login to Hugging Face
-    login(token=HUGGINGFACE_TOKEN)
-    
     # Load dataset
     raw_dataset = load_dataset("mteb/tweet_sentiment_extraction")
     tokenizer = AutoTokenizer.from_pretrained(MODEL, trust_remote_code=True)
@@ -137,12 +117,10 @@ def show_examples(model, dataset, tokenizer):
     print("EXAMPLE CLASSIFICATIONS")
     print("="*50)
     
-    # Get a few examples
+    # examples to try
     for i in [4, 10, 25, 50, 100]:
-        if i >= len(dataset['train']):
-            continue
-            
-        ex = dataset['train'][i]
+
+        ex = dataset['test'][i]
         ex_text = ex['text']
         ex_input = torch.tensor(ex['input_ids']).unsqueeze(dim=0)
         ex_label = ex['label']
@@ -159,7 +137,6 @@ def show_examples(model, dataset, tokenizer):
         print(f'\nExample {i+1}:')
         print(f'Text: {ex_text}')
         
-        # Convert label to one-hot format for display
         if ex_label == 0:
             true_label_str = '[1, 0, 0] (Negative)'
         elif ex_label == 1:
@@ -175,6 +152,8 @@ def show_examples(model, dataset, tokenizer):
         print("-" * 50)
 
 def main():
+
+
     parser = argparse.ArgumentParser(description='Evaluate Gemma3 Sentiment Classifier')
     parser.add_argument('model_path', type=str, help='Path to the trained model checkpoint')
     args = parser.parse_args()
@@ -198,4 +177,12 @@ def main():
     show_examples(model, dataset, tokenizer)
 
 if __name__ == "__main__":
+    load_dotenv()
+    HUGGINGFACE_TOKEN = os.getenv("HUGGINGFACE_TOKEN")
+    MODEL = "google/gemma-3-4b-pt"
+    SEED = 69
+    
+    # Login to Hugging Face
+    login(token=HUGGINGFACE_TOKEN)
+    
     main()

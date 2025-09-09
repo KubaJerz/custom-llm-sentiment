@@ -14,7 +14,7 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader, TensorDataset
 
 from tqdm import tqdm
-from utils import plot_and_save_losses, save_best_model
+from utils import plot_and_save_losses, save_best_model, check_gpu_memory
 
 # NOTE: we are using the pretrained model ( the model prior to SFT) since we have our own dataset
 load_dotenv()
@@ -51,16 +51,6 @@ train_dataset = TensorDataset(X_train, y_train)
 dev_dataset = TensorDataset(X_dev, y_dev)
 train_loader = DataLoader(train_dataset, batch_size=4)
 dev_loader = DataLoader(dev_dataset, batch_size=4)
-
-def check_gpu_memory():
-    if torch.cuda.is_available():
-        for i in range(torch.cuda.device_count()):
-            print(f"\nGPU {i}:")
-            print(f"  Allocated: {torch.cuda.memory_allocated(i) / 1024**3:.2f} GB")
-            print(f"  Cached: {torch.cuda.memory_reserved(i) / 1024**3:.2f} GB")
-            print(f"  Total: {torch.cuda.get_device_properties(i).total_memory / 1024**3:.2f} GB")
-
-
 
 #--------------------------------------------------
 # LOAD MODEL

@@ -25,3 +25,11 @@ def save_best_model(model, dev_loss, best_dev_loss, epoch):
         print(f"New best model saved at epoch {epoch}! Dev loss: {dev_loss:.4f}")
         return dev_loss
     return best_dev_loss
+
+def check_gpu_memory():
+    if torch.cuda.is_available():
+        for i in range(torch.cuda.device_count()):
+            print(f"\nGPU {i}:")
+            print(f"  Allocated: {torch.cuda.memory_allocated(i) / 1024**3:.2f} GB")
+            print(f"  Cached: {torch.cuda.memory_reserved(i) / 1024**3:.2f} GB")
+            print(f"  Total: {torch.cuda.get_device_properties(i).total_memory / 1024**3:.2f} GB")

@@ -85,12 +85,7 @@ def evaluate_model(model, test_loader):
     
     print("Evaluating model...")
     with torch.no_grad():
-        for batch_idx, (inputs, labels) in enumerate(test_loader):
-            # Move inputs to appropriate device
-            if torch.cuda.is_available():
-                inputs = inputs.to('cuda:0')  # Base model is on cuda:0
-            
-            # Get predictions
+        for batch_idx, (inputs, labels) in enumerate(test_loader):            
             outputs = model(inputs)
             predictions = torch.argmax(outputs, dim=1)
             true_labels = torch.argmax(labels, dim=1)
@@ -102,12 +97,8 @@ def evaluate_model(model, test_loader):
                 print(f"Processed {batch_idx * inputs.size(0)} samples...")
     
     # Calculate F1 score
-    f1 = f1_score(all_labels, all_predictions, average='weighted')
+    f1 = f1_score(all_labels, all_predictions, average='macro')
     accuracy = np.mean(np.array(all_predictions) == np.array(all_labels))
-    
-    print(f"\nEvaluation Results:")
-    print(f"F1 Score (weighted): {f1:.4f}")
-    print(f"Accuracy: {accuracy:.4f}")
     
     return f1, accuracy
 
@@ -182,7 +173,6 @@ if __name__ == "__main__":
     MODEL = "google/gemma-3-4b-pt"
     SEED = 69
     
-    # Login to Hugging Face
     login(token=HUGGINGFACE_TOKEN)
     
     main()
